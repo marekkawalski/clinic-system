@@ -6,6 +6,5 @@ services:
       - 'MONGO_INITDB_DATABASE=clinicsystem'
       - 'MONGO_INITDB_ROOT_PASSWORD=secret'
       - 'MONGO_INITDB_ROOT_USERNAME=root'
-      - 'MONGO'
     ports:
       - '27017:27017'

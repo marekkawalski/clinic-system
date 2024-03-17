@@ -1,0 +1,13 @@
+POST http://localhost:8080/admins/create
+authorization: Basic {{adminUserEmail}} {{password}}
+Content-Type: application/json
+
+{
+  "createUserDTO": {
+    "name": "",
+    "surname": "s",
+    "password": "Password1234!",
+    "email": "admhahhayuinds2sadmin.com"
+  }
+}
+
