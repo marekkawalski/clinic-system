@@ -1,8 +1,8 @@
 package com.marek_kawalski.clinic_system.user;
 
 public enum UserRole {
-    ADMIN,
-    DOCTOR,
-    PATIENT,
-    REGISTRAR
+    ROLE_ADMIN,
+    ROLE_DOCTOR,
+    ROLE_PATIENT,
+    ROLE_REGISTRAR
 }

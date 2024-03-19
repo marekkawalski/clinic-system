@@ -2,12 +2,16 @@ package com.marek_kawalski.clinic_system.user;
 
 import com.marek_kawalski.clinic_system.user.dto.CreateUpdateUserDTO;
 import com.marek_kawalski.clinic_system.user.dto.UserDTO;
+import com.marek_kawalski.clinic_system.user.exception.UnauthorizedAccessException;
 import com.marek_kawalski.clinic_system.user.exception.UserExistsException;
 import com.marek_kawalski.clinic_system.user.exception.UserNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,6 +24,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         final List<User> users = userService.getAllUsers();
@@ -28,6 +33,27 @@ public class UserController {
                         .body(null)
                 : ResponseEntity.status(HttpStatus.OK)
                 .body(users.stream().map(userMapper::mapUserToUserDTO).toList());
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/paged")
+    public ResponseEntity<Page<UserDTO>> getPagedUsers(@RequestParam(value = "sort", defaultValue = "name") final String sortField,
+                                                       @RequestParam(value = "sort-dir", defaultValue = "ASC") final Sort.Direction sortDirection,
+                                                       @RequestParam(value = "page-size", defaultValue = "10") final Integer pageSize,
+                                                       @RequestParam(value = "page-num", defaultValue = "0") final Integer pageNum,
+                                                       @RequestParam(value = "search", required = false) final String search,
+                                                       @RequestParam(value = "role", required = false) final UserRole role) {
+        final Page<User> pagedUsers = userService.getPagedUsers(UserRequestParams.builder()
+                .sortField(sortField)
+                .sortDirection(sortDirection)
+                .pageSize(pageSize)
+                .pageNumber(pageNum)
+                .search(search)
+                .role(role)
+                .build());
+
+        return pagedUsers.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) :
+                ResponseEntity.status(HttpStatus.OK).body(pagedUsers.map(userMapper::mapUserToUserDTO));
     }
 
     @PutMapping("/{id}")
@@ -43,6 +69,9 @@ public class UserController {
         } catch (UserExistsException e) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, e.getMessage(), e.getCause());
+        } catch (UnauthorizedAccessException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, e.getMessage(), e.getCause());
         }
     }
 
@@ -59,6 +88,9 @@ public class UserController {
         } catch (UserExistsException e) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, e.getMessage(), e.getCause());
+        } catch (UnauthorizedAccessException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, e.getMessage(), e.getCause());
         }
     }
 

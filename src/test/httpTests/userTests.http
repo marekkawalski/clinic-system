@@ -1,4 +1,4 @@
-POST http://localhost:8080/users
+POST {{host}}/users
 authorization: Basic {{adminUserEmail}} {{password}}
 Content-Type: application/json
 
@@ -6,7 +6,7 @@ Content-Type: application/json
   "name": "test",
   "surname": "test",
   "password": "Password1234!",
-  "email": "test@gmail.com",
+  "email": "teswsaat@gmail.com",
   "phoneNumber": "1234567890",
   "pesel": "12345678901",
   "address": {
@@ -16,11 +16,39 @@ Content-Type: application/json
     "houseNumber": "1",
     "apartmentNumber": "1",
     "country": "Poland"
-  }
+  },
+  "role": "ROLE_ADMIN"
 }
 
 ###
-GET http://localhost:8080/users
+PUT {{host}}/users/65f9c32d6702b512ac5cecd0
 authorization: Basic {{adminUserEmail}} {{password}}
 Content-Type: application/json
 
+{
+  "name": "test",
+  "surname": "test",
+  "password": "Password1234!",
+  "email": "doctor@doctor.com",
+  "phoneNumber": "1234567890",
+  "pesel": "12345678901",
+  "address": {
+    "city": "Gliwice",
+    "street": "Zwycistwa",
+    "postalCode": "12-345",
+    "houseNumber": "1",
+    "apartmentNumber": "1",
+    "country": "Poland"
+  },
+  "role": "ROLE_ADMIN"
+}
+
+###
+GET {{host}}/users
+authorization: Basic {{adminUserEmail}} {{password}}
+Content-Type: application/json
+
+###
+GET {{host}}/users/paged?page-num=0&page-size=1&role=ROLE_ADMIN
+authorization: Basic {{adminUserEmail}} {{password}}
+Content-Type: application/json

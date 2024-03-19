@@ -1,9 +1,13 @@
 package com.marek_kawalski.clinic_system.user;
 
 import com.marek_kawalski.clinic_system.user.dto.CreateUpdateUserDTO;
+import com.marek_kawalski.clinic_system.user.exception.UnauthorizedAccessException;
 import com.marek_kawalski.clinic_system.user.exception.UserExistsException;
 import com.marek_kawalski.clinic_system.user.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,7 +35,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> createUpdateUser(final String userId, final CreateUpdateUserDTO createUpdateUserDTO) throws UserNotFoundException, UserExistsException {
+    public Optional<User> createUpdateUser(final String userId, final CreateUpdateUserDTO createUpdateUserDTO) throws UserNotFoundException, UserExistsException, UnauthorizedAccessException {
         User user = new User();
         if (userId != null) {
             final Optional<User> oUser = userRepository.findById(userId);
@@ -51,15 +55,30 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setPassword(bCryptPasswordEncoder.encode(createUpdateUserDTO.password()));
         }
 
-        //Todo check privileges
         if (createUpdateUserDTO.role() == null) {
-            user.setUserRole(UserRole.PATIENT);
+            user.setUserRole(UserRole.ROLE_PATIENT);
+        } else {
+            checkAccess(List.of(UserRole.ROLE_ADMIN), "You are not authorized to change user role");
+            user.setUserRole(createUpdateUserDTO.role());
         }
         if (createUpdateUserDTO.enabled() != null) {
+            checkAccess(List.of(UserRole.ROLE_ADMIN), "You are not authorized to change user enabled status");
             user.setEnabled(createUpdateUserDTO.enabled());
         }
 
         return Optional.of(userRepository.save(user));
+    }
+
+    @Override
+    public Page<User> getPagedUsers(final UserRequestParams userRequestParams) {
+        return userRepository.getPagedUsers(userRequestParams);
+    }
+
+    private void checkAccess(final List<UserRole> userRoles, final String unauthorizedMessage) throws UnauthorizedAccessException {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> userRoles.contains(UserRole.valueOf(grantedAuthority.getAuthority())))))
+            throw new UnauthorizedAccessException(unauthorizedMessage);
     }
 
     private String validateEmail(final User user, final String email) throws UserExistsException {

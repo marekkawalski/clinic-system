@@ -72,11 +72,11 @@ public class Seeder {
                         .name("Admin")
                         .surname("Admin")
                         .email("admin@admin.com")
-                        .userRole(UserRole.ADMIN)
+                        .userRole(UserRole.ROLE_ADMIN)
                         .build());
         IntStream.range(0, 10).forEach(i -> userRepository.save(
                 seedCommonUserData()
-                        .userRole(UserRole.ADMIN)
+                        .userRole(UserRole.ROLE_ADMIN)
                         .build()));
     }
 
@@ -86,11 +86,11 @@ public class Seeder {
                         .name("Patient")
                         .surname("Patient")
                         .email("patient@patient.com")
-                        .userRole(UserRole.PATIENT)
+                        .userRole(UserRole.ROLE_PATIENT)
                         .build());
         IntStream.range(0, 100).forEach(i -> userRepository.save(
                 seedCommonUserData()
-                        .userRole(UserRole.PATIENT)
+                        .userRole(UserRole.ROLE_PATIENT)
                         .build()));
     }
 
@@ -100,7 +100,7 @@ public class Seeder {
                         .name("Registrar")
                         .surname("Registrar")
                         .email("registrar@registrar.com")
-                        .userRole(UserRole.REGISTRAR)
+                        .userRole(UserRole.ROLE_REGISTRAR)
                         .build());
     }
 
@@ -110,12 +110,12 @@ public class Seeder {
                         .name("Doctor")
                         .surname("Doctor")
                         .email("doctor@doctor.com")
-                        .userRole(UserRole.DOCTOR)
+                        .userRole(UserRole.ROLE_DOCTOR)
                         .doctorDetails(getDoctorDetails())
                         .build());
         IntStream.range(0, 10).forEach(i -> userRepository.save(
                 seedCommonUserData()
-                        .userRole(UserRole.DOCTOR)
+                        .userRole(UserRole.ROLE_DOCTOR)
                         .doctorDetails(getDoctorDetails())
                         .build()));
 
