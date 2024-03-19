@@ -1,6 +1,10 @@
 package com.marek_kawalski.clinic_system.user;
 
 import com.marek_kawalski.clinic_system.user.doctor.DoctorDetails;
+import com.marek_kawalski.clinic_system.utils.Constants;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -22,11 +26,16 @@ public class User implements UserDetails {
     @Id
     private String id;
 
+    @Size(min = Constants.MIN_NAME_LENGTH, max = Constants.MAX_NAME_LENGTH)
+    @NotBlank(message = "Name is mandatory")
     private String name;
 
+    @Size(min = Constants.MIN_SURNAME_LENGTH, max = Constants.MAX_SURNAME_LENGTH)
+    @NotBlank(message = "Surname is mandatory")
     private String surname;
 
     @Indexed(unique = true)
+    @Email
     private String email;
 
     private String password;

@@ -1,0 +1,26 @@
+POST http://localhost:8080/users
+authorization: Basic {{adminUserEmail}} {{password}}
+Content-Type: application/json
+
+{
+  "name": "test",
+  "surname": "test",
+  "password": "Password1234!",
+  "email": "test@gmail.com",
+  "phoneNumber": "1234567890",
+  "pesel": "12345678901",
+  "address": {
+    "city": "Gliwice",
+    "street": "Zwycistwa",
+    "postalCode": "12-345",
+    "houseNumber": "1",
+    "apartmentNumber": "1",
+    "country": "Poland"
+  }
+}
+
+###
+GET http://localhost:8080/users
+authorization: Basic {{adminUserEmail}} {{password}}
+Content-Type: application/json
+
