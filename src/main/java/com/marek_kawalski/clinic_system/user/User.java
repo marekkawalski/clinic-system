@@ -1,13 +1,7 @@
 package com.marek_kawalski.clinic_system.user;
 
-import com.marek_kawalski.clinic_system.utils.Constants;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import com.marek_kawalski.clinic_system.user.doctor.DoctorDetails;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,26 +14,35 @@ import java.util.Collections;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Document(collection = "users")
 public class User implements UserDetails {
     @Id
     private String id;
 
-    @Size(min = Constants.MIN_NAME_LENGTH, max = Constants.MAX_NAME_LENGTH, message = "Name must be between " + Constants.MIN_NAME_LENGTH + " and " + Constants.MAX_NAME_LENGTH + " characters")
     private String name;
 
-    @Size(min = Constants.MIN_SURNAME_LENGTH, max = Constants.MAX_SURNAME_LENGTH, message = "Surname must be between " + Constants.MIN_SURNAME_LENGTH + " and " + Constants.MAX_SURNAME_LENGTH + " characters")
     private String surname;
 
-    @Email(message = "Invalid email format")
     @Indexed(unique = true)
-
     private String email;
+
     private String password;
+
     private UserRole userRole;
+
     private boolean isEnabled = false;
+
+    private String phoneNumber;
+
+    private String pesel;
+
+    private Address address;
+
+    // Role specific fields
+    private DoctorDetails doctorDetails;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
