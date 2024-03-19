@@ -35,21 +35,20 @@ public class UserController {
                 .body(users.stream().map(userMapper::mapUserToUserDTO).toList());
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/paged")
     public ResponseEntity<Page<UserDTO>> getPagedUsers(@RequestParam(value = "sort", defaultValue = "name") final String sortField,
                                                        @RequestParam(value = "sort-dir", defaultValue = "ASC") final Sort.Direction sortDirection,
                                                        @RequestParam(value = "page-size", defaultValue = "10") final Integer pageSize,
                                                        @RequestParam(value = "page-num", defaultValue = "0") final Integer pageNum,
                                                        @RequestParam(value = "search", required = false) final String search,
-                                                       @RequestParam(value = "role", required = false) final UserRole role) {
+                                                       @RequestParam(value = "roles", required = false) final List<UserRole> roles) {
         final Page<User> pagedUsers = userService.getPagedUsers(UserRequestParams.builder()
                 .sortField(sortField)
                 .sortDirection(sortDirection)
                 .pageSize(pageSize)
                 .pageNumber(pageNum)
                 .search(search)
-                .role(role)
+                .roles(roles)
                 .build());
 
         return pagedUsers.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) :

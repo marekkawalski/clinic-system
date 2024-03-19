@@ -19,17 +19,17 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
     @Override
     public Page<User> getPagedUsers(final UserRequestParams userRequestParams) {
-        final int pageNumber = userRequestParams.pageNumber();
-        final int pageSize = userRequestParams.pageSize();
-        final UserRole role = userRequestParams.role();
-        final String search = userRequestParams.search();
+        final int pageNumber = userRequestParams.getPageNumber();
+        final int pageSize = userRequestParams.getPageSize();
+        final List<UserRole> roles = userRequestParams.getRoles();
+        final String search = userRequestParams.getSearch();
 
         final Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         final Query query = new Query();
 
-        if (role != null) {
-            query.addCriteria(Criteria.where("userRole").is(role));
+        if (roles != null && !roles.isEmpty()) {
+            query.addCriteria(Criteria.where("userRole").in(roles));
         }
         if (search != null && !search.isEmpty()) {
             Criteria nameCriteria = Criteria.where("name").regex(search, "i");

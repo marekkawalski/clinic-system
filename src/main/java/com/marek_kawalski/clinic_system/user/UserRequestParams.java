@@ -1,15 +1,18 @@
 package com.marek_kawalski.clinic_system.user;
 
 import lombok.Builder;
+import lombok.Data;
 import org.springframework.data.domain.Sort;
 
+import java.util.List;
+
 @Builder
-public record UserRequestParams(
-        String sortField,
-        Sort.Direction sortDirection,
-        Integer pageSize,
-        Integer pageNumber,
-        String search,
-        UserRole role
-) {
+@Data
+public class UserRequestParams {
+    private String sortField;
+    private Sort.Direction sortDirection;
+    private Integer pageSize;
+    private Integer pageNumber;
+    private String search;
+    private List<UserRole> roles;
 }

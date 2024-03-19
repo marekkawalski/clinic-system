@@ -71,6 +71,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public Page<User> getPagedUsers(final UserRequestParams userRequestParams) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) return Page.empty();
+
+        if (authentication.getAuthorities()
+                .stream()
+                .anyMatch(grantedAuthority ->
+                        UserRole.ROLE_PATIENT.equals(UserRole.valueOf(grantedAuthority.getAuthority())))) {
+            userRequestParams.setRoles(List.of(UserRole.ROLE_DOCTOR));
+        } else if (authentication.getAuthorities()
+                .stream()
+                .anyMatch(grantedAuthority ->
+                        List.of(UserRole.ROLE_DOCTOR, UserRole.ROLE_REGISTRAR)
+                                .contains(UserRole.valueOf(grantedAuthority.getAuthority())))) {
+            userRequestParams.setRoles(List.of(UserRole.ROLE_DOCTOR, UserRole.ROLE_PATIENT, UserRole.ROLE_REGISTRAR));
+        }
+
         return userRepository.getPagedUsers(userRequestParams);
     }
 
