@@ -1,6 +1,9 @@
 package com.marek_kawalski.clinic_system.seeder;
 
 import com.github.javafaker.Faker;
+import com.marek_kawalski.clinic_system.examination.Examination;
+import com.marek_kawalski.clinic_system.examination.ExaminationRepository;
+import com.marek_kawalski.clinic_system.examination.ExaminationStatus;
 import com.marek_kawalski.clinic_system.user.Address;
 import com.marek_kawalski.clinic_system.user.User;
 import com.marek_kawalski.clinic_system.user.UserRepository;
@@ -18,16 +21,14 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @Component
 @AllArgsConstructor
 public class Seeder {
     private final UserRepository userRepository;
+    private final ExaminationRepository examinationRepository;
     private final String genericPassword = "Password1234!";
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Faker faker = new Faker();
@@ -35,6 +36,7 @@ public class Seeder {
     @EventListener
     public void seedTables(ContextRefreshedEvent ignoredEvent) {
         this.seedUsers();
+        this.seedExaminations();
     }
 
     private void seedUsers() {
@@ -157,5 +159,60 @@ public class Seeder {
             dailySchedules.put(day, schedule);
         }
         return dailySchedules;
+    }
+
+    private void seedExaminations() {
+        if (examinationRepository.count() > 0) return;
+
+        final List<Examination> examinations = new ArrayList<>();
+        IntStream.range(0, 10).forEach(i -> examinations.add(Examination.builder()
+                .name(faker.medical().diseaseName())
+                .description(faker.medical().symptoms())
+                .price(faker.number().randomDouble(2, 50, 500))
+                .duration(30)
+                .status(ExaminationStatus.AVAILABLE)
+                .doctors(new ArrayList<>())
+                .build()));
+        examinationRepository.saveAll(examinations);
+
+        final List<User> doctors = userRepository.findAllByUserRole(UserRole.ROLE_DOCTOR);
+
+        doctors.forEach(doctor -> {
+            final List<Examination> tempExaminations = new ArrayList<>();
+            Collections.shuffle(examinations);
+            IntStream.range(0, faker.random().nextInt(1, 5)).forEach(i -> tempExaminations.add(examinations.get(faker.random().nextInt(0, examinations.size() - 1))));
+
+            doctor.getDoctorDetails().getExaminations().addAll(tempExaminations);
+            userRepository.save(doctor);
+
+            tempExaminations.forEach(examination -> {
+                examination.getDoctors().add(doctor);
+            });
+            examinationRepository.saveAll(tempExaminations);
+        });
+
+        final Optional<User> doctor = userRepository.findByEmail("doctor@doctor.com");
+
+        doctor.ifPresent(value -> {
+            final List<Examination> tempExaminations = new ArrayList<>();
+            IntStream.range(0, faker.random().nextInt(1, 5)).forEach(i -> tempExaminations.add(
+                    Examination.builder()
+                            .name("Examination " + i)
+                            .description("Description " + i)
+                            .price(100)
+                            .duration(30)
+                            .status(ExaminationStatus.AVAILABLE)
+                            .doctors(new ArrayList<>())
+                            .build()
+            ));
+            examinationRepository.saveAll(tempExaminations);
+
+            value.getDoctorDetails().getExaminations().addAll(tempExaminations);
+            userRepository.save(value);
+
+            tempExaminations.forEach(examination -> examination.getDoctors().add(value));
+            examinationRepository.saveAll(tempExaminations);
+        });
+
     }
 }
