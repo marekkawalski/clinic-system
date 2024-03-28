@@ -1,5 +1,6 @@
 package com.marek_kawalski.clinic_system.examination;
 
+import com.marek_kawalski.clinic_system.examination.dto.CreateUpdateExaminationDTO;
 import com.marek_kawalski.clinic_system.examination.dto.ExaminationDTO;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
@@ -7,10 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,5 +42,24 @@ public class ExaminationController {
                 ResponseEntity.status(HttpStatus.OK).body(pagedExaminations.map(examinationMapper::mapExaminationToExaminationDTO));
 
     }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping
+    public ResponseEntity<ExaminationDTO> create(@RequestBody final CreateUpdateExaminationDTO examinationDTO) {
+        return
+                examinationService.createUpdateExamination(null, examinationDTO)
+                        .map(examination -> ResponseEntity.status(HttpStatus.CREATED).body(examinationMapper.mapExaminationToExaminationDTO(examination)))
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("{id}")
+    public ResponseEntity<ExaminationDTO> update(@PathVariable("id") final String id, @RequestBody final CreateUpdateExaminationDTO examinationDTO) {
+        return
+                examinationService.createUpdateExamination(id, examinationDTO)
+                        .map(examination -> ResponseEntity.status(HttpStatus.OK).body(examinationMapper.mapExaminationToExaminationDTO(examination)))
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null));
+    }
+
 
 }
