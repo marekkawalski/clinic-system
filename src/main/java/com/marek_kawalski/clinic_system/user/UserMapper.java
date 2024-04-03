@@ -1,5 +1,6 @@
 package com.marek_kawalski.clinic_system.user;
 
+import com.marek_kawalski.clinic_system.user.dto.DoctorDetailsDTO;
 import com.marek_kawalski.clinic_system.user.dto.UserDTO;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,14 @@ public class UserMapper {
                 .phoneNumber(user.getPhoneNumber())
                 .pesel(user.getPesel())
                 .address(user.getAddress())
-                .doctorDetails(user.getDoctorDetails())
+                .doctorDetails(
+                        user.getDoctorDetails() == null ? null :
+                                DoctorDetailsDTO.builder()
+                                        .specialization(user.getDoctorDetails().getSpecialization())
+                                        .education(user.getDoctorDetails().getEducation())
+                                        .description(user.getDoctorDetails().getDescription())
+                                        .build()
+                )
                 .build();
     }
 }

@@ -1,6 +1,9 @@
 package com.marek_kawalski.clinic_system.seeder;
 
 import com.github.javafaker.Faker;
+import com.marek_kawalski.clinic_system.appointment.Appointment;
+import com.marek_kawalski.clinic_system.appointment.AppointmentRepository;
+import com.marek_kawalski.clinic_system.appointment.AppointmentStatus;
 import com.marek_kawalski.clinic_system.examination.Examination;
 import com.marek_kawalski.clinic_system.examination.ExaminationRepository;
 import com.marek_kawalski.clinic_system.examination.ExaminationStatus;
@@ -29,6 +32,7 @@ import java.util.stream.IntStream;
 public class Seeder {
     private final UserRepository userRepository;
     private final ExaminationRepository examinationRepository;
+    private final AppointmentRepository appointmentRepository;
     private final String genericPassword = "Password1234!";
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Faker faker = new Faker();
@@ -37,6 +41,7 @@ public class Seeder {
     public void seedTables(ContextRefreshedEvent ignoredEvent) {
         this.seedUsers();
         this.seedExaminations();
+        this.seedAppointments();
     }
 
     private void seedUsers() {
@@ -45,6 +50,22 @@ public class Seeder {
         this.seedAdmins();
         this.seedPatients();
         this.seedRegistrars();
+    }
+
+    private void seedAppointments() {
+        if (appointmentRepository.count() > 0) return;
+        final User doctor = userRepository.findAllByUserRole(UserRole.ROLE_DOCTOR).get(faker.random().nextInt(0, userRepository.findAllByUserRole(UserRole.ROLE_DOCTOR).size() - 1));
+        final User patient = userRepository.findAllByUserRole(UserRole.ROLE_PATIENT).get(faker.random().nextInt(0, userRepository.findAllByUserRole(UserRole.ROLE_PATIENT).size() - 1));
+        final Optional<Examination> examination = examinationRepository.findById(doctor.getDoctorDetails().getExaminations().get(faker.random().nextInt(0, doctor.getDoctorDetails().getExaminations().size() - 1)).getId());
+        if (examination.isEmpty()) return;
+        appointmentRepository.save(Appointment.builder()
+                .date(LocalDateTime.now())
+                .status(AppointmentStatus.BOOKED)
+                .description(faker.lorem().paragraph())
+                .doctor(doctor)
+                .patient(patient)
+                .examination(examination.get())
+                .build());
     }
 
     private User.UserBuilder seedCommonUserData() {
@@ -168,8 +189,15 @@ public class Seeder {
         IntStream.range(0, 10).forEach(i -> examinations.add(Examination.builder()
                 .name(faker.medical().diseaseName())
                 .description(faker.medical().symptoms())
-                .price(faker.number().randomDouble(2, 50, 500))
-                .duration(30)
+                .price(faker.number().numberBetween(50, 500))
+                .duration(
+                        switch (faker.random().nextInt(0, 3)) {
+                            case 0 -> 15;
+                            case 1 -> 30;
+                            case 2 -> 45;
+                            default -> 60;
+                        }
+                )
                 .status(ExaminationStatus.AVAILABLE)
                 .doctors(new ArrayList<>())
                 .build()));
@@ -185,9 +213,7 @@ public class Seeder {
             doctor.getDoctorDetails().getExaminations().addAll(tempExaminations);
             userRepository.save(doctor);
 
-            tempExaminations.forEach(examination -> {
-                examination.getDoctors().add(doctor);
-            });
+            tempExaminations.forEach(examination -> examination.getDoctors().add(doctor));
             examinationRepository.saveAll(tempExaminations);
         });
 
