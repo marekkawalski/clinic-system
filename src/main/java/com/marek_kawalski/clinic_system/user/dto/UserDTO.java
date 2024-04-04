@@ -2,6 +2,7 @@ package com.marek_kawalski.clinic_system.user.dto;
 
 import com.marek_kawalski.clinic_system.user.Address;
 import com.marek_kawalski.clinic_system.user.UserRole;
+import com.marek_kawalski.clinic_system.user.doctor.dto.DoctorDetailsDTO;
 import lombok.Builder;
 
 @Builder

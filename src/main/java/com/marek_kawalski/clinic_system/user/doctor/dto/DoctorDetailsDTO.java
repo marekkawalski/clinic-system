@@ -1,4 +1,4 @@
-package com.marek_kawalski.clinic_system.user.dto;
+package com.marek_kawalski.clinic_system.user.doctor.dto;
 
 import lombok.Builder;
 

@@ -21,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -171,8 +170,8 @@ public class Seeder {
     private Map<DayOfWeek, DailySchedule> initializeDailySchedules() {
         Map<DayOfWeek, DailySchedule> dailySchedules = new EnumMap<>(DayOfWeek.class);
         for (DayOfWeek day : DayOfWeek.values()) {
-            LocalDateTime startTime = LocalDateTime.of(LocalDate.EPOCH, LocalTime.of(faker.random().nextInt(8, 12), 0)); // Only hour part, minute set to 0
-            LocalDateTime endTime = LocalDateTime.of(LocalDate.EPOCH, LocalTime.of(faker.random().nextInt(12, 18), 0)); // Only hour part, minute set to 0
+            LocalTime startTime = LocalTime.of(faker.random().nextInt(8, 12), 0); // Only hour part, minute set to 0
+            LocalTime endTime = LocalTime.of(faker.random().nextInt(12, 18), 0); // Only hour part, minute set to 0
             DailySchedule schedule = DailySchedule.builder()
                     .startTime(startTime)
                     .endTime(endTime)

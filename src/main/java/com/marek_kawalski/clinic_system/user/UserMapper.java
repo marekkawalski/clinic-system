@@ -1,6 +1,6 @@
 package com.marek_kawalski.clinic_system.user;
 
-import com.marek_kawalski.clinic_system.user.dto.DoctorDetailsDTO;
+import com.marek_kawalski.clinic_system.user.doctor.dto.DoctorDetailsDTO;
 import com.marek_kawalski.clinic_system.user.dto.UserDTO;
 import org.springframework.stereotype.Component;
 
