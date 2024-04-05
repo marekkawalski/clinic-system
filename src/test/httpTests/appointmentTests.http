@@ -26,7 +26,7 @@ Content-Type: application/json
 }
 
 ###
-GET {{host}}/appointments/doctors/660d50685f12b209dcdd1875?status=BOOKED
+GET {{host}}/appointments/doctors/660edfa85fb57f06c7e4d5c6?status=BOOKED
 authorization: Basic {{doctorUserEmail}} {{password}}
 Content-Type: application/json
 
