@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCustom {
 
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public Page<Appointment> findAllDoctorsAppointments(final String doctorId, final AppointmentRequestParams appointmentRequestParams) {

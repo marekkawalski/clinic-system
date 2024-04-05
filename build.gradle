@@ -17,6 +17,10 @@ configurations {
     }
 }
 
+bootJar {
+    archiveFileName = "clinic-system-0.1.0.jar"
+}
+
 repositories {
     mavenCentral()
 }

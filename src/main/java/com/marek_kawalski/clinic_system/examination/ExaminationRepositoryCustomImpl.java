@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class ExaminationRepositoryCustomImpl implements ExaminationRepositoryCustom {
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public Page<Examination> getPagedExaminations(final ExaminationRequestParams examinationRequestParams) {

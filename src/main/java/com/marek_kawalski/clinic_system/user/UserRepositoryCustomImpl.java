@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public Page<User> getPagedUsers(final UserRequestParams userRequestParams) {
