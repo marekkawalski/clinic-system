@@ -58,20 +58,18 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  labels:
-    name: clinicbackend-ingress
   name: clinicbackend-ingress
   namespace: clinic-system
 spec:
-  ingressClassName: tools-nginx
+  ingressClassName: nginx
   rules:
-    - host: localhost
+    - host: "clinic.system.com"
       http:
         paths:
-          - backend:
+          - pathType: Prefix
+            path: "/"
+            backend:
               service:
                 name: clinicbackend
                 port:
                   number: 8080
-            path: /
-            pathType: Prefix
