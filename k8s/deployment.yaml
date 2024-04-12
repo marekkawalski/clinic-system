@@ -63,7 +63,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: "clinic.system.com"
+    - host: "server.clinic.system.com"
       http:
         paths:
           - pathType: Prefix
