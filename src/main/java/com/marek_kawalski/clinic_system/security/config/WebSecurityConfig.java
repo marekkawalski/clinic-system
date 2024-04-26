@@ -1,7 +1,8 @@
 package com.marek_kawalski.clinic_system.security.config;
 
 import com.marek_kawalski.clinic_system.user.UserServiceImpl;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,15 +22,22 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WebSecurityConfig {
     private final UserServiceImpl userService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Value("${angular.app.url}")
+    private String angularAppUrl;
+
+    @Value("${react.app.url}")
+    private String reactAppUrl;
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
 
         return http
+                .cors(Customizer.withDefaults())
                 .csrf().disable()
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/registration/**")
@@ -55,7 +63,8 @@ public class WebSecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*");
+        configuration.addAllowedOrigin(angularAppUrl);
+        configuration.addAllowedOrigin(reactAppUrl);
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("*"));
