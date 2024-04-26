@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +42,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             final Optional<User> oUser = userRepository.findById(userId);
             if (oUser.isEmpty()) throw new UserNotFoundException(String.format("User with id %s not found", userId));
             user = oUser.get();
+            user.setUpdatedAt(LocalDateTime.now());
+        } else {
+            user.setCreatedAt(LocalDateTime.now());
         }
 
         user.setName(createUpdateUserDTO.name());
@@ -88,6 +92,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         return userRepository.getPagedUsers(userRequestParams);
+    }
+
+    @Override
+    public Optional<User> findByEmail(final String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public void save(final User user) {
+        userRepository.save(user);
     }
 
     private void checkAccess(final List<UserRole> userRoles, final String unauthorizedMessage) throws UnauthorizedAccessException {

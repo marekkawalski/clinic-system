@@ -15,4 +15,8 @@ public interface UserService {
     Optional<User> createUpdateUser(final String userId, final CreateUpdateUserDTO createUpdateUserDTO) throws UserNotFoundException, UserExistsException, UnauthorizedAccessException;
 
     Page<User> getPagedUsers(final UserRequestParams userRequestParams);
+
+    Optional<User> findByEmail(final String email);
+
+    void save(final User user);
 }

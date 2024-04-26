@@ -16,6 +16,9 @@ public class UserMapper {
                 .phoneNumber(user.getPhoneNumber())
                 .pesel(user.getPesel())
                 .address(user.getAddress())
+                .createdAt(user.getCreatedAt())
+                .lastLogin(user.getLastLogin())
+                .updatedAt(user.getUpdatedAt())
                 .doctorDetails(
                         user.getDoctorDetails() == null ? null :
                                 DoctorDetailsDTO.builder()

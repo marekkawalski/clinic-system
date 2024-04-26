@@ -5,6 +5,8 @@ import com.marek_kawalski.clinic_system.user.UserRole;
 import com.marek_kawalski.clinic_system.user.doctor.dto.DoctorDetailsDTO;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record UserDTO(
         String id,
@@ -15,7 +17,10 @@ public record UserDTO(
         String phoneNumber,
         String pesel,
         Address address,
-        DoctorDetailsDTO doctorDetails
+        DoctorDetailsDTO doctorDetails,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        LocalDateTime lastLogin
 
 ) {
 }

@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -49,6 +50,12 @@ public class User implements UserDetails {
     private String pesel;
 
     private Address address;
+
+    private LocalDateTime createdAt;
+    
+    private LocalDateTime updatedAt;
+
+    private LocalDateTime lastLogin;
 
     // Role specific fields
     private DoctorDetails doctorDetails;
