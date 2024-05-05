@@ -43,7 +43,7 @@ public class User implements UserDetails {
 
     private UserRole userRole;
 
-    private boolean isEnabled = false;
+    private boolean isEnabled = true;
 
     private String phoneNumber;
 
@@ -52,7 +52,7 @@ public class User implements UserDetails {
     private Address address;
 
     private LocalDateTime createdAt;
-    
+
     private LocalDateTime updatedAt;
 
     private LocalDateTime lastLogin;

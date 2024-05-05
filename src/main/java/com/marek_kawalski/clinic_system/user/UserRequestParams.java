@@ -14,5 +14,6 @@ public class UserRequestParams {
     private Integer pageSize;
     private Integer pageNumber;
     private String search;
+    private boolean showDisabled;
     private List<UserRole> roles;
 }

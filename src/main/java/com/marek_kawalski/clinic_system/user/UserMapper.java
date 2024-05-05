@@ -19,6 +19,7 @@ public class UserMapper {
                 .createdAt(user.getCreatedAt())
                 .lastLogin(user.getLastLogin())
                 .updatedAt(user.getUpdatedAt())
+                .isEnabled(user.isEnabled())
                 .doctorDetails(
                         user.getDoctorDetails() == null ? null :
                                 DoctorDetailsDTO.builder()

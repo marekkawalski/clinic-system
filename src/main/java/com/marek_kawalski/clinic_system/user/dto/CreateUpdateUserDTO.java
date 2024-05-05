@@ -25,6 +25,6 @@ public record CreateUpdateUserDTO(
         String pesel,
         Address address,
         DoctorDetails doctorDetails,
-        Boolean enabled
+        Boolean isEnabled
 ) {
 }

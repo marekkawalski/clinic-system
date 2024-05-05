@@ -18,14 +18,22 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
+    @GetMapping("users/{id}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable("id") final String userId) {
+        return userService.findById(userId)
+                .map(user -> ResponseEntity.status(HttpStatus.OK)
+                        .body(userMapper.mapUserToUserDTO(user)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         final List<User> users = userService.getAllUsers();
         return users.isEmpty() ?
@@ -35,12 +43,13 @@ public class UserController {
                 .body(users.stream().map(userMapper::mapUserToUserDTO).toList());
     }
 
-    @GetMapping("/paged")
+    @GetMapping("/users/paged")
     public ResponseEntity<Page<UserDTO>> getPagedUsers(@RequestParam(value = "sort", defaultValue = "name") final String sortField,
                                                        @RequestParam(value = "sort-dir", defaultValue = "ASC") final Sort.Direction sortDirection,
                                                        @RequestParam(value = "page-size", defaultValue = "10") final Integer pageSize,
                                                        @RequestParam(value = "page-num", defaultValue = "0") final Integer pageNum,
                                                        @RequestParam(value = "search", required = false) final String search,
+                                                       @RequestParam(value = "show-disabled", defaultValue = "false") final boolean showDisabled,
                                                        @RequestParam(value = "roles", required = false) final List<UserRole> roles) {
         final Page<User> pagedUsers = userService.getPagedUsers(UserRequestParams.builder()
                 .sortField(sortField)
@@ -49,13 +58,14 @@ public class UserController {
                 .pageNumber(pageNum)
                 .search(search)
                 .roles(roles)
+                .showDisabled(showDisabled)
                 .build());
 
         return pagedUsers.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) :
                 ResponseEntity.status(HttpStatus.OK).body(pagedUsers.map(userMapper::mapUserToUserDTO));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/users/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable("id") final String userId, @Valid @RequestBody final CreateUpdateUserDTO createUpdateUserDTO) {
         try {
             return userService.createUpdateUser(userId, createUpdateUserDTO)
@@ -74,7 +84,7 @@ public class UserController {
         }
     }
 
-    @PostMapping
+    @PostMapping("registration")
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody final CreateUpdateUserDTO createUpdateUserDTO) {
         try {
             return userService.createUpdateUser(null, createUpdateUserDTO)

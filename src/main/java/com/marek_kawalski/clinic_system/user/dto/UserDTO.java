@@ -18,6 +18,7 @@ public record UserDTO(
         String pesel,
         Address address,
         DoctorDetailsDTO doctorDetails,
+        boolean isEnabled,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime lastLogin

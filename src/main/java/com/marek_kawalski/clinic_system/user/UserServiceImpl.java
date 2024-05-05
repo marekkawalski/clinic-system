@@ -59,15 +59,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setPassword(bCryptPasswordEncoder.encode(createUpdateUserDTO.password()));
         }
 
-        if (createUpdateUserDTO.role() == null) {
+        if (createUpdateUserDTO.role() == null || createUpdateUserDTO.role().equals(UserRole.ROLE_PATIENT)) {
             user.setUserRole(UserRole.ROLE_PATIENT);
         } else {
             checkAccess(List.of(UserRole.ROLE_ADMIN), "You are not authorized to change user role");
             user.setUserRole(createUpdateUserDTO.role());
         }
-        if (createUpdateUserDTO.enabled() != null) {
-            checkAccess(List.of(UserRole.ROLE_ADMIN), "You are not authorized to change user enabled status");
-            user.setEnabled(createUpdateUserDTO.enabled());
+        if (createUpdateUserDTO.isEnabled() != null) {
+            checkAccess(List.of(UserRole.ROLE_ADMIN), "You are not authorized to change user isEnabled status");
+            user.setEnabled(createUpdateUserDTO.isEnabled());
         }
 
         return Optional.of(userRepository.save(user));
@@ -102,6 +102,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public void save(final User user) {
         userRepository.save(user);
+    }
+
+    @Override
+    public Optional<User> findById(final String userId) {
+        return userRepository.findById(userId);
     }
 
     private void checkAccess(final List<UserRole> userRoles, final String unauthorizedMessage) throws UnauthorizedAccessException {

@@ -23,6 +23,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         final int pageSize = userRequestParams.getPageSize();
         final List<UserRole> roles = userRequestParams.getRoles();
         final String search = userRequestParams.getSearch();
+        final boolean showDisabled = userRequestParams.isShowDisabled();
 
         final Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
@@ -31,6 +32,9 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         if (roles != null && !roles.isEmpty()) {
             query.addCriteria(Criteria.where("userRole").in(roles));
         }
+
+        query.addCriteria(Criteria.where("isEnabled").is(!showDisabled));
+
         if (search != null && !search.isEmpty()) {
             Criteria nameCriteria = Criteria.where("name").regex(search, "i");
             Criteria surnameCriteria = Criteria.where("surname").regex(search, "i");
