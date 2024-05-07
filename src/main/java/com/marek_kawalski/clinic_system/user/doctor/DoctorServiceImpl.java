@@ -9,8 +9,10 @@ import com.marek_kawalski.clinic_system.examination.ExaminationRepository;
 import com.marek_kawalski.clinic_system.examination.exception.ExaminationNotFoundException;
 import com.marek_kawalski.clinic_system.user.User;
 import com.marek_kawalski.clinic_system.user.UserRepository;
+import com.marek_kawalski.clinic_system.user.UserRequestParams;
 import com.marek_kawalski.clinic_system.user.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -54,6 +56,11 @@ public class DoctorServiceImpl implements DoctorService {
 
 
         return getAvailableAppointmentsSlots(LocalDateTime.of(LocalDate.from(date), startTime), LocalDateTime.of(LocalDate.from(date), endTime), bookedAppointments, examination);
+    }
+
+    @Override
+    public Page<User> getPagedDoctors(final UserRequestParams doctorRequestParams) {
+        return userRepository.getPagedUsers(doctorRequestParams);
     }
 
     private List<LocalDateTime> getAvailableAppointmentsSlots(final LocalDateTime startTime, final LocalDateTime endTime, final List<Appointment> bookedAppointments, final Examination examination) {

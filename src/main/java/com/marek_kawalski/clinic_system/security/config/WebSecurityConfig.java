@@ -43,6 +43,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/registration/**")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "doctors/paged**")
+                        .permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**")
                         .permitAll()
                         .anyRequest()

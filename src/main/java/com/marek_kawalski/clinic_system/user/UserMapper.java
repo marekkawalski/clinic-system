@@ -1,11 +1,15 @@
 package com.marek_kawalski.clinic_system.user;
 
-import com.marek_kawalski.clinic_system.user.doctor.dto.DoctorDetailsDTO;
+import com.marek_kawalski.clinic_system.user.doctor.DoctorDetailsMapper;
 import com.marek_kawalski.clinic_system.user.dto.UserDTO;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class UserMapper {
+    private final DoctorDetailsMapper doctorDetailsMapper;
+
     public UserDTO mapUserToUserDTO(final User user) {
         return UserDTO.builder()
                 .id(user.getId())
@@ -22,11 +26,7 @@ public class UserMapper {
                 .isEnabled(user.isEnabled())
                 .doctorDetails(
                         user.getDoctorDetails() == null ? null :
-                                DoctorDetailsDTO.builder()
-                                        .specialization(user.getDoctorDetails().getSpecialization())
-                                        .education(user.getDoctorDetails().getEducation())
-                                        .description(user.getDoctorDetails().getDescription())
-                                        .build()
+                                doctorDetailsMapper.mapDoctorDetailsToDoctorDetailsDTO(user.getDoctorDetails())
                 )
                 .build();
     }

@@ -49,6 +49,6 @@ authorization: Basic {{adminUserEmail}} {{password}}
 Content-Type: application/json
 
 ###
-GET {{host}}/users/paged?page-num=0&page-size=1
+GET {{host}}/users/paged?roles=ROLE_DOCTOR
 authorization: Basic {{patientUserEmail}} {{password}}
 Content-Type: application/json
