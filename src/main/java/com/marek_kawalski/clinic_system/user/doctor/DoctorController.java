@@ -27,6 +27,13 @@ public class DoctorController {
     private final DoctorMapper doctorMapper;
     private final AvailableAppointmentsMapper availableAppointmentsMapper;
 
+    @GetMapping("/email/{email}")
+    public ResponseEntity<DoctorDTO> getDoctorByEmail(@PathVariable final String email) {
+        final User doctor = doctorService.getDoctorByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor with email: " + email + " not found"));
+        return ResponseEntity.status(HttpStatus.OK).body(doctorMapper.mapDoctorToDoctorDTO(doctor));
+    }
+
 
     @GetMapping("/{id}/examinations/{examinationId}/available-appointments/date/{date}")
     public ResponseEntity<List<AvailableAppointmentsDTO>> getAvailableAppointments(@PathVariable final String id, @PathVariable final String examinationId,

@@ -12,6 +12,7 @@ public class DoctorMapper {
 
     public DoctorDTO mapDoctorToDoctorDTO(final User doctor) {
         return DoctorDTO.builder()
+                .id(doctor.getId())
                 .name(doctor.getName())
                 .surname(doctor.getSurname())
                 .email(doctor.getEmail())

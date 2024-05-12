@@ -9,9 +9,12 @@ import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface DoctorService {
     List<LocalDateTime> getAvailableAppointments(final String doctorId, final String examinationId, final LocalDateTime date) throws UserNotFoundException, ExaminationNotFoundException, AppointmentIllegalStateException;
 
     Page<User> getPagedDoctors(final UserRequestParams doctorRequestParams);
+
+    Optional<User> getDoctorByEmail(final String email);
 }

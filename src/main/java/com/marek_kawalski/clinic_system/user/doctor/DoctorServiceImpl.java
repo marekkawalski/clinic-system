@@ -63,6 +63,11 @@ public class DoctorServiceImpl implements DoctorService {
         return userRepository.getPagedUsers(doctorRequestParams);
     }
 
+    @Override
+    public Optional<User> getDoctorByEmail(final String email) {
+        return userRepository.findByEmail(email);
+    }
+
     private List<LocalDateTime> getAvailableAppointmentsSlots(final LocalDateTime startTime, final LocalDateTime endTime, final List<Appointment> bookedAppointments, final Examination examination) {
         final List<LocalDateTime> availableAppointmentsSlots = new ArrayList<>();
 

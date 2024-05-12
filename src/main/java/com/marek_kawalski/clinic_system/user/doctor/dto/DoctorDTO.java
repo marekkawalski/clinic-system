@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record DoctorDTO(
+        String id,
         String name,
         String surname,
         String email,
