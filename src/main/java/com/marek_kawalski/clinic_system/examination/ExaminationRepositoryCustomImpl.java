@@ -58,4 +58,12 @@ public class ExaminationRepositoryCustomImpl implements ExaminationRepositoryCus
         List<Examination> examinations = mongoTemplate.find(query, Examination.class);
         return PageableExecutionUtils.getPage(examinations, pageable, () -> totalCount);
     }
+
+    @Override
+    public List<Examination> findAllByDoctorsId(final ObjectId doctorId) {
+        final Query query = new Query();
+        query.addCriteria(Criteria.where("doctors.id").is(doctorId));
+
+        return mongoTemplate.find(query, Examination.class);
+    }
 }

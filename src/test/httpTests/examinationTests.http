@@ -3,6 +3,11 @@ GET {{host}}/examinations/paged?doctor-ids=66048dfe8697ed35cb68b2d1
 authorization: Basic {{patientUserEmail}} {{password}}
 Content-Type: application/json
 
+###
+GET {{host}}/doctors/6604a4a884cfb6230d0ee0d5/examinations
+authorization: Basic {{patientUserEmail}} {{password}}
+Content-Type: application/json
+
 
 ###
 POST {{host}}/examinations

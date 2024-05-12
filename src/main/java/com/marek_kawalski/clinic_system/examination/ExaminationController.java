@@ -14,13 +14,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/examinations")
 @AllArgsConstructor
 public class ExaminationController {
     private final ExaminationService examinationService;
     private final ExaminationMapper examinationMapper;
 
-    @GetMapping("paged")
+    @GetMapping("/doctors/{doctorId}/examinations")
+    public ResponseEntity<List<ExaminationDTO>> getDoctorsExaminations(@PathVariable("doctorId") final ObjectId doctorId) {
+        final List<Examination> examinations = examinationService.getDoctorsExaminations(doctorId);
+        return examinations.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) :
+                ResponseEntity.status(HttpStatus.OK).body(examinations.stream().map(examinationMapper::mapExaminationToExaminationDTO).toList());
+    }
+
+    @GetMapping("/examinations/paged")
     public ResponseEntity<Page<ExaminationDTO>> getPagedExaminations(
             @RequestParam(value = "sort", defaultValue = "name") final String sortField,
             @RequestParam(value = "sort-dir", defaultValue = "ASC") final Sort.Direction sortDirection,
@@ -44,7 +50,7 @@ public class ExaminationController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping
+    @PostMapping("/examinations")
     public ResponseEntity<ExaminationDTO> create(@RequestBody final CreateUpdateExaminationDTO examinationDTO) {
         return
                 examinationService.createUpdateExamination(null, examinationDTO)
@@ -53,7 +59,7 @@ public class ExaminationController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("{id}")
+    @PutMapping("/examinations/{id}")
     public ResponseEntity<ExaminationDTO> update(@PathVariable("id") final String id, @RequestBody final CreateUpdateExaminationDTO examinationDTO) {
         return
                 examinationService.createUpdateExamination(id, examinationDTO)

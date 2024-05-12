@@ -1,10 +1,7 @@
 package com.marek_kawalski.clinic_system.examination;
 
 import com.marek_kawalski.clinic_system.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
@@ -16,6 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @Builder
+@NoArgsConstructor
 @Document(collection = "examinations")
 public class Examination {
     @Id
@@ -34,7 +32,4 @@ public class Examination {
     @DocumentReference(lazy = true)
     private List<User> doctors = new ArrayList<>();
 
-    public Examination() {
-
-    }
 }

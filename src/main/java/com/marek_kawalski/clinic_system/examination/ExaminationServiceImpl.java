@@ -4,6 +4,7 @@ import com.marek_kawalski.clinic_system.examination.dto.CreateUpdateExaminationD
 import com.marek_kawalski.clinic_system.user.User;
 import com.marek_kawalski.clinic_system.user.UserRepository;
 import lombok.AllArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,11 @@ public class ExaminationServiceImpl implements ExaminationService {
         updateDoctorsExaminations(examination, examinationDTO);
 
         return Optional.of(examination);
+    }
+
+    @Override
+    public List<Examination> getDoctorsExaminations(final ObjectId doctorId) {
+        return examinationRepository.findAllByDoctorsId(doctorId);
     }
 
     private void updateExaminationDetails(Examination examination, CreateUpdateExaminationDTO examinationDTO) {

@@ -14,6 +14,7 @@ public class AppointmentMapper {
 
     public AppointmentDTO mapAppoitnemntToAppointmentDTO(final Appointment appointment) {
         return AppointmentDTO.builder()
+                .id(appointment.getId())
                 .date(appointment.getDate())
                 .status(appointment.getStatus())
                 .description(appointment.getDescription())
