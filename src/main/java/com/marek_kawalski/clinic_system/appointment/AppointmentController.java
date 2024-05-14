@@ -2,6 +2,7 @@ package com.marek_kawalski.clinic_system.appointment;
 
 import com.marek_kawalski.clinic_system.appointment.dto.AppointmentDTO;
 import com.marek_kawalski.clinic_system.appointment.dto.CreateUpdateAppointmentDTO;
+import com.marek_kawalski.clinic_system.appointment.exception.AppointmentExistsException;
 import com.marek_kawalski.clinic_system.appointment.exception.AppointmentNotFoundException;
 import com.marek_kawalski.clinic_system.examination.exception.ExaminationNotFoundException;
 import com.marek_kawalski.clinic_system.user.exception.UserNotFoundException;
@@ -98,6 +99,9 @@ public class AppointmentController {
         } catch (UserNotFoundException | ExaminationNotFoundException | AppointmentNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e.getCause());
+        } catch (AppointmentExistsException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, e.getMessage(), e.getCause());
         }
     }
 
@@ -112,6 +116,9 @@ public class AppointmentController {
         } catch (UserNotFoundException | ExaminationNotFoundException | AppointmentNotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e.getCause());
+        } catch (AppointmentExistsException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, e.getMessage(), e.getCause());
         }
     }
 }

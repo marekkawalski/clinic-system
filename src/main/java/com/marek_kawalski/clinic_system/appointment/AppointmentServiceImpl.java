@@ -1,9 +1,11 @@
 package com.marek_kawalski.clinic_system.appointment;
 
 import com.marek_kawalski.clinic_system.appointment.dto.CreateUpdateAppointmentDTO;
+import com.marek_kawalski.clinic_system.appointment.exception.AppointmentExistsException;
 import com.marek_kawalski.clinic_system.appointment.exception.AppointmentNotFoundException;
 import com.marek_kawalski.clinic_system.examination.ExaminationRepository;
 import com.marek_kawalski.clinic_system.examination.exception.ExaminationNotFoundException;
+import com.marek_kawalski.clinic_system.user.User;
 import com.marek_kawalski.clinic_system.user.UserRepository;
 import com.marek_kawalski.clinic_system.user.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
@@ -22,20 +24,26 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 
     @Override
-    public Optional<Appointment> createUpdateAppointment(final String id, final CreateUpdateAppointmentDTO createUpdateAppointmentDTO) throws UserNotFoundException, ExaminationNotFoundException, AppointmentNotFoundException {
+    public Optional<Appointment> createUpdateAppointment(final String id, final CreateUpdateAppointmentDTO createUpdateAppointmentDTO) throws UserNotFoundException, ExaminationNotFoundException, AppointmentNotFoundException, AppointmentExistsException {
+        final Optional<User> doctor = userRepository.findById(createUpdateAppointmentDTO.doctorId());
+        if (doctor.isEmpty()) {
+            throw new UserNotFoundException("Doctor not found!");
+        }
         Appointment appointment;
         if (id != null) {
             appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found!"));
             appointment.setLastUpdateDate(LocalDateTime.now());
         } else {
+            if (appointmentRepository.findByDoctorAndDateAndStatus(doctor.get(), createUpdateAppointmentDTO.date(), createUpdateAppointmentDTO.status()).isPresent()) {
+                throw new AppointmentExistsException("Appointment already exists!");
+            }
             appointment = new Appointment();
             appointment.setCreationDate(LocalDateTime.now());
         }
 
-        updateAppointmentDetails(appointment, createUpdateAppointmentDTO);
+        updateAppointmentDetails(appointment, createUpdateAppointmentDTO, doctor.get());
 
         return Optional.of(appointmentRepository.save(appointment));
-
     }
 
     @Override
@@ -53,12 +61,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentRepository.findAllPatientsAppointments(patientId, patientAppointmentRequestParams);
     }
 
-    private void updateAppointmentDetails(final Appointment appointment, final CreateUpdateAppointmentDTO createUpdateAppointmentDTO) throws UserNotFoundException, ExaminationNotFoundException {
+    private void updateAppointmentDetails(final Appointment appointment, final CreateUpdateAppointmentDTO createUpdateAppointmentDTO,
+                                          final User doctor) throws UserNotFoundException, ExaminationNotFoundException {
         appointment.setDate(createUpdateAppointmentDTO.date());
         appointment.setDescription(createUpdateAppointmentDTO.description());
         appointment.setStatus(createUpdateAppointmentDTO.status());
 
-        appointment.setDoctor(userRepository.findById(createUpdateAppointmentDTO.doctorId()).orElseThrow(() -> new UserNotFoundException("Doctor not found!")));
+        appointment.setDoctor(doctor);
         appointment.setPatient(userRepository.findById(createUpdateAppointmentDTO.patientId()).orElseThrow(() -> new UserNotFoundException("Patient not found!")));
         appointment.setExamination(examinationRepository.findById(createUpdateAppointmentDTO.examinationId()).orElseThrow(() -> new ExaminationNotFoundException("Examination not found!")));
     }

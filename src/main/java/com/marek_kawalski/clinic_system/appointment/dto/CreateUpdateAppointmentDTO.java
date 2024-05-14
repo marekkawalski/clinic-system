@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public record CreateUpdateAppointmentDTO(
         @CustomDateTimeFormat
         LocalDateTime date,
+
         AppointmentStatus status,
 
         String description,
