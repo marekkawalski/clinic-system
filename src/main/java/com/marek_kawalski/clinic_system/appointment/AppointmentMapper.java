@@ -21,6 +21,7 @@ public class AppointmentMapper {
                 .doctor(userMapper.mapUserToUserDTO(appointment.getDoctor()))
                 .patient(userMapper.mapUserToUserDTO(appointment.getPatient()))
                 .examination(examinationMapper.mapExaminationToExaminationDTO(appointment.getExamination()))
+                .medicines(appointment.getMedicines())
                 .build();
     }
 }

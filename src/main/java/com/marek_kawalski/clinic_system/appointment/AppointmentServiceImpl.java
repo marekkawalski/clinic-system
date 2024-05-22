@@ -66,7 +66,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setDate(createUpdateAppointmentDTO.date());
         appointment.setDescription(createUpdateAppointmentDTO.description());
         appointment.setStatus(createUpdateAppointmentDTO.status());
-
+        appointment.setMedicines(createUpdateAppointmentDTO.medicines());
         appointment.setDoctor(doctor);
         appointment.setPatient(userRepository.findById(createUpdateAppointmentDTO.patientId()).orElseThrow(() -> new UserNotFoundException("Patient not found!")));
         appointment.setExamination(examinationRepository.findById(createUpdateAppointmentDTO.examinationId()).orElseThrow(() -> new ExaminationNotFoundException("Examination not found!")));

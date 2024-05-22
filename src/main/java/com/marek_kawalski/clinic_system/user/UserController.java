@@ -23,7 +23,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_REGISTRAR', 'ROLE_DOCTOR')")
     @GetMapping("users/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable("id") final String userId) {
         return userService.findById(userId)
@@ -32,7 +32,7 @@ public class UserController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_REGISTRAR', 'ROLE_DOCTOR')")
     @GetMapping("users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         final List<User> users = userService.getAllUsers();

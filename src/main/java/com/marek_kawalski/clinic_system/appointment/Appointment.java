@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,6 +30,8 @@ public class Appointment {
     private AppointmentStatus status;
 
     private String description;
+
+    private List<Medicine> medicines;
 
     @DocumentReference(lazy = true)
     private User doctor;
