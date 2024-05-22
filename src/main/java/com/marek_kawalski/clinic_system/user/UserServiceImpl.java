@@ -66,7 +66,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setUserRole(createUpdateUserDTO.role());
         }
         if (createUpdateUserDTO.isEnabled() != null) {
-            checkAccess(List.of(UserRole.ROLE_ADMIN), "You are not authorized to change user isEnabled status");
+            if (userId != null)
+                checkAccess(List.of(UserRole.ROLE_ADMIN), "You are not authorized to change user isEnabled status");
             user.setEnabled(createUpdateUserDTO.isEnabled());
         }
 
