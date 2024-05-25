@@ -105,7 +105,6 @@ public class AppointmentController {
         }
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_DOCTOR', 'ROLE_ADMIN', 'ROLE_REGISTRAR')")
     @PostMapping
     public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody final CreateUpdateAppointmentDTO createUpdateAppointmentDTO) {
         final Optional<Appointment> appointment;
