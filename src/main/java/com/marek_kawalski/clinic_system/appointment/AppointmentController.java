@@ -88,7 +88,6 @@ public class AppointmentController {
 
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_DOCTOR', 'ROLE_ADMIN', 'ROLE_REGISTRAR')")
     @PutMapping("/{id}")
     public ResponseEntity<AppointmentDTO> updateAppointment(@PathVariable("id") final String id, @RequestBody @Valid final CreateUpdateAppointmentDTO createUpdateAppointmentDTO) {
         final Optional<Appointment> appointment;

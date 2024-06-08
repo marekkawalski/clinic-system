@@ -34,6 +34,9 @@ public class WebSecurityConfig {
     @Value("${react.app.url}")
     private String reactAppUrl;
 
+    @Value("${vue.app.url}")
+    private String vueAppUrl;
+
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
 
@@ -72,6 +75,7 @@ public class WebSecurityConfig {
         final CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin(angularAppUrl);
         configuration.addAllowedOrigin(reactAppUrl);
+        configuration.addAllowedOrigin(vueAppUrl);
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("*"));

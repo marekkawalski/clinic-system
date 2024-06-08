@@ -68,7 +68,8 @@ public class DoctorServiceImpl implements DoctorService {
         return userRepository.findByEmail(email);
     }
 
-    private List<LocalDateTime> getAvailableAppointmentsSlots(final LocalDateTime startTime, final LocalDateTime endTime, final List<Appointment> bookedAppointments, final Examination examination) {
+    private List<LocalDateTime> getAvailableAppointmentsSlots(final LocalDateTime startTime, final LocalDateTime endTime,
+                                                              final List<Appointment> bookedAppointments, final Examination examination) {
         final List<LocalDateTime> availableAppointmentsSlots = new ArrayList<>();
 
         LocalDateTime currentTime = startTime;
