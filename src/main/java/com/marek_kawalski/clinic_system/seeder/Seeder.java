@@ -1,6 +1,5 @@
 package com.marek_kawalski.clinic_system.seeder;
 
-import com.github.javafaker.Faker;
 import com.marek_kawalski.clinic_system.appointment.Appointment;
 import com.marek_kawalski.clinic_system.appointment.AppointmentRepository;
 import com.marek_kawalski.clinic_system.appointment.AppointmentStatus;
@@ -15,6 +14,8 @@ import com.marek_kawalski.clinic_system.user.doctor.DoctorDetails;
 import com.marek_kawalski.clinic_system.user.doctor.schedule.DailySchedule;
 import com.marek_kawalski.clinic_system.user.doctor.schedule.Schedule;
 import lombok.AllArgsConstructor;
+import net.datafaker.Faker;
+import net.datafaker.providers.healthcare.HealthcareFaker;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,6 +36,7 @@ public class Seeder {
     private final String genericPassword = "Password1234!";
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Faker faker = new Faker();
+    private final HealthcareFaker healthcareFaker = new HealthcareFaker();
 
     @EventListener
     public void seedTables(ContextRefreshedEvent ignoredEvent) {
@@ -186,8 +188,8 @@ public class Seeder {
 
         final List<Examination> examinations = new ArrayList<>();
         IntStream.range(0, 10).forEach(i -> examinations.add(Examination.builder()
-                .name(faker.medical().diseaseName())
-                .description(faker.medical().symptoms())
+                .name(healthcareFaker.disease().anyDisease())
+                .description(faker.lorem().paragraph())
                 .price(faker.number().numberBetween(50, 500))
                 .duration(
                         switch (faker.random().nextInt(0, 3)) {
@@ -222,9 +224,9 @@ public class Seeder {
             final List<Examination> tempExaminations = new ArrayList<>();
             IntStream.range(0, faker.random().nextInt(1, 5)).forEach(i -> tempExaminations.add(
                     Examination.builder()
-                            .name("Examination " + i)
-                            .description("Description " + i)
-                            .price(100)
+                            .name(healthcareFaker.medicalProcedure().icd10())
+                            .description(faker.lorem().paragraph())
+                            .price(faker.number().numberBetween(50, 500))
                             .duration(30)
                             .status(ExaminationStatus.AVAILABLE)
                             .doctors(new ArrayList<>())
