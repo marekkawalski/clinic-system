@@ -21,4 +21,6 @@ public interface UserService {
     void save(final User user);
 
     Optional<User> findById(final String userId);
+
+    Optional<User> disableUser(final String userId) throws UserNotFoundException;
 }

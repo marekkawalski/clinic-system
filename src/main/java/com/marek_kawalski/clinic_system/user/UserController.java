@@ -103,4 +103,17 @@ public class UserController {
         }
     }
 
+    @PatchMapping("/users/{id}/disable")
+    public ResponseEntity<UserDTO> disableUser(@PathVariable("id") final String userId) {
+        try {
+            return userService.disableUser(userId)
+                    .map(user -> ResponseEntity.status(HttpStatus.OK)
+                            .body(userMapper.mapUserToUserDTO(user)))
+                    .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null));
+        } catch (UserNotFoundException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, e.getMessage(), e.getCause());
+        }
+    }
+
 }

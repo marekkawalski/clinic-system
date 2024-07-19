@@ -110,6 +110,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findById(userId);
     }
 
+    @Override
+    public Optional<User> disableUser(final String userId) throws UserNotFoundException {
+        final Optional<User> oUser = userRepository.findById(userId);
+        if (oUser.isEmpty()) throw new UserNotFoundException(String.format("User with id %s not found", userId));
+        final User user = oUser.get();
+        user.setEnabled(false);
+        return Optional.of(userRepository.save(user));
+    }
+
     private void checkAccess(final List<UserRole> userRoles, final String unauthorizedMessage) throws UnauthorizedAccessException {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication != null && authentication.getAuthorities().stream()
