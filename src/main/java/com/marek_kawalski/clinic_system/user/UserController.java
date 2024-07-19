@@ -44,8 +44,8 @@ public class UserController {
     }
 
     @GetMapping("/users/paged")
-    public ResponseEntity<Page<UserDTO>> getPagedUsers(@RequestParam(value = "sort", defaultValue = "name") final String sortField,
-                                                       @RequestParam(value = "sort-dir", defaultValue = "ASC") final Sort.Direction sortDirection,
+    public ResponseEntity<Page<UserDTO>> getPagedUsers(@RequestParam(value = "sort", defaultValue = "createdAt") final String sortField,
+                                                       @RequestParam(value = "sort-dir", defaultValue = "DESC") final Sort.Direction sortDirection,
                                                        @RequestParam(value = "page-size", defaultValue = "10") final Integer pageSize,
                                                        @RequestParam(value = "page-num", defaultValue = "0") final Integer pageNum,
                                                        @RequestParam(value = "search", required = false) final String search,

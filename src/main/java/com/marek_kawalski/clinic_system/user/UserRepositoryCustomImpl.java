@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -24,8 +25,12 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         final List<UserRole> roles = userRequestParams.getRoles();
         final String search = userRequestParams.getSearch();
         final boolean showDisabled = userRequestParams.isShowDisabled();
+        final String sortField = userRequestParams.getSortField();
+        final Sort.Direction sortDirection = userRequestParams.getSortDirection();
 
-        final Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Sort sort = Sort.by(sortDirection, sortField);
+
+        final Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         final Query query = new Query();
 
@@ -49,4 +54,5 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         List<User> users = mongoTemplate.find(query, User.class);
         return PageableExecutionUtils.getPage(users, pageable, () -> totalCount);
     }
+
 }
