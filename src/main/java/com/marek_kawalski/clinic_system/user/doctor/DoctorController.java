@@ -4,6 +4,7 @@ import com.marek_kawalski.clinic_system.appointment.exception.AppointmentIllegal
 import com.marek_kawalski.clinic_system.examination.exception.ExaminationNotFoundException;
 import com.marek_kawalski.clinic_system.user.User;
 import com.marek_kawalski.clinic_system.user.UserRequestParams;
+import com.marek_kawalski.clinic_system.user.UserRole;
 import com.marek_kawalski.clinic_system.user.doctor.dto.AvailableAppointmentsDTO;
 import com.marek_kawalski.clinic_system.user.doctor.dto.DoctorDTO;
 import com.marek_kawalski.clinic_system.user.exception.UserNotFoundException;
@@ -64,6 +65,7 @@ public class DoctorController {
                 .pageSize(pageSize)
                 .pageNumber(pageNum)
                 .search(search)
+                .roles(List.of(UserRole.ROLE_DOCTOR))
                 .build());
 
         return pagedUsers.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) :
