@@ -6,6 +6,7 @@ public class Constants {
 
     public static final Integer NUMBER_OF_ADMIN_USERS = 10;
     public static final Integer NUMBER_OF_DOCTOR_USERS = 100;
-    public static final Integer NUMBER_OF_PATIENT_USERS = 20000;
+    public static final Integer NUMBER_OF_PATIENT_USERS = 100;
     public static final Integer NUMBER_OF_REGISTRAR_USERS = 10;
+    public static Integer NUMBER_OF_APPOINTMENTS = 100;
 }

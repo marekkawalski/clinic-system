@@ -1,8 +1,5 @@
 package com.marek_kawalski.clinic_system.seeder;
 
-import com.marek_kawalski.clinic_system.appointment.Appointment;
-import com.marek_kawalski.clinic_system.appointment.AppointmentRepository;
-import com.marek_kawalski.clinic_system.appointment.AppointmentStatus;
 import com.marek_kawalski.clinic_system.examination.Examination;
 import com.marek_kawalski.clinic_system.examination.ExaminationRepository;
 import com.marek_kawalski.clinic_system.examination.ExaminationStatus;
@@ -13,237 +10,271 @@ import com.marek_kawalski.clinic_system.user.UserRole;
 import com.marek_kawalski.clinic_system.user.doctor.DoctorDetails;
 import com.marek_kawalski.clinic_system.user.doctor.schedule.DailySchedule;
 import com.marek_kawalski.clinic_system.user.doctor.schedule.Schedule;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
-import net.datafaker.providers.healthcare.HealthcareFaker;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Seeder {
     private final UserRepository userRepository;
     private final ExaminationRepository examinationRepository;
-    private final AppointmentRepository appointmentRepository;
-    private final String genericPassword = "Password1234!";
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Value("${seeder.generic-password:Password1234!}")
+    private String genericPassword;
+
     private final Faker faker = new Faker();
-    private final HealthcareFaker healthcareFaker = new HealthcareFaker();
+    private final Random random = new Random();
+
+    private static final Map<String, List<String>> SPECIALIZATION_EXAMINATIONS = new HashMap<>();
+    private static final Map<String, List<String>> EXAMINATION_SYMPTOMS = new HashMap<>();
+    private static final List<Double> EXAMINATION_PRICES = Arrays.asList(
+            50.0, 75.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0
+    );
+
+    static {
+        SPECIALIZATION_EXAMINATIONS.put("Cardiology", Arrays.asList(
+                "Electrocardiogram (ECG)", "Echocardiogram", "Stress Test", "Holter Monitoring"
+        ));
+        SPECIALIZATION_EXAMINATIONS.put("Dermatology", Arrays.asList(
+                "Skin Biopsy", "Patch Testing", "Dermatoscopy", "Cryotherapy"
+        ));
+        SPECIALIZATION_EXAMINATIONS.put("Neurology", Arrays.asList(
+                "Electroencephalogram (EEG)", "MRI of the Brain", "Nerve Conduction Study", "Lumbar Puncture"
+        ));
+        SPECIALIZATION_EXAMINATIONS.put("Orthopedics", Arrays.asList(
+                "X-ray", "MRI of Joints", "Bone Density Scan", "Arthroscopy"
+        ));
+        SPECIALIZATION_EXAMINATIONS.put("Gastroenterology", Arrays.asList(
+                "Endoscopy", "Colonoscopy", "Liver Function Test", "Abdominal Ultrasound"
+        ));
+
+        EXAMINATION_SYMPTOMS.put("Electrocardiogram (ECG)", Arrays.asList(
+                "chest pain", "shortness of breath", "palpitations", "dizziness"
+        ));
+        EXAMINATION_SYMPTOMS.put("Echocardiogram", Arrays.asList(
+                "heart murmur", "chest pain", "shortness of breath", "swelling in the legs"
+        ));
+        EXAMINATION_SYMPTOMS.put("Stress Test", Arrays.asList(
+                "chest pain during exercise", "shortness of breath with activity", "irregular heartbeat"
+        ));
+        EXAMINATION_SYMPTOMS.put("Holter Monitoring", Arrays.asList(
+                "palpitations", "fainting spells", "dizziness", "unexplained fatigue"
+        ));
+        EXAMINATION_SYMPTOMS.put("Skin Biopsy", Arrays.asList(
+                "suspicious mole", "skin lesion", "rash", "unexplained skin growth"
+        ));
+        EXAMINATION_SYMPTOMS.put("Patch Testing", Arrays.asList(
+                "skin rash", "itching", "contact dermatitis", "eczema"
+        ));
+        EXAMINATION_SYMPTOMS.put("Dermatoscopy", Arrays.asList(
+                "changing mole", "skin discoloration", "irregular skin growth"
+        ));
+        EXAMINATION_SYMPTOMS.put("Cryotherapy", Arrays.asList(
+                "warts", "skin tags", "actinic keratosis", "seborrheic keratosis"
+        ));
+    }
 
     @EventListener
+    @Transactional
     public void seedTables(ContextRefreshedEvent ignoredEvent) {
-        this.seedUsers();
-        this.seedExaminations();
-        this.seedAppointments();
+        seedUsers();
+        seedExaminations();
     }
 
     private void seedUsers() {
         if (userRepository.count() > 0) return;
-        this.seedDoctors();
-        this.seedAdmins();
-        this.seedPatients();
-        this.seedRegistrars();
+
+        // Create hardcoded users
+        createHardcodedUser(UserRole.ROLE_ADMIN, "Admin", "Admin", "admin@admin.com");
+        createHardcodedUser(UserRole.ROLE_DOCTOR, "Doctor", "Doctor", "doctor@doctor.com");
+        createHardcodedUser(UserRole.ROLE_REGISTRAR, "Registrar", "Registrar", "registrar@registrar.com");
+        createHardcodedUser(UserRole.ROLE_PATIENT, "Patient", "Patient", "patient@patient.com");
+
+        // Seed additional users
+        seedAdditionalUsers(UserRole.ROLE_DOCTOR, Constants.NUMBER_OF_DOCTOR_USERS - 1, this::createDoctor);
+        seedAdditionalUsers(UserRole.ROLE_ADMIN, Constants.NUMBER_OF_ADMIN_USERS - 1, this::createAdmin);
+        seedAdditionalUsers(UserRole.ROLE_PATIENT, Constants.NUMBER_OF_PATIENT_USERS - 1, this::createPatient);
+        seedAdditionalUsers(UserRole.ROLE_REGISTRAR, Constants.NUMBER_OF_REGISTRAR_USERS - 1, this::createRegistrar);
     }
 
-    private void seedAppointments() {
-        if (appointmentRepository.count() > 0) return;
-        final User doctor = userRepository.findAllByUserRole(UserRole.ROLE_DOCTOR).get(faker.random().nextInt(0, userRepository.findAllByUserRole(UserRole.ROLE_DOCTOR).size() - 1));
-        final User patient = userRepository.findAllByUserRole(UserRole.ROLE_PATIENT).get(faker.random().nextInt(0, userRepository.findAllByUserRole(UserRole.ROLE_PATIENT).size() - 1));
-        final Optional<Examination> examination = examinationRepository.findById(doctor.getDoctorDetails().getExaminations().get(faker.random().nextInt(0, doctor.getDoctorDetails().getExaminations().size() - 1)).getId());
-        if (examination.isEmpty()) return;
-        appointmentRepository.save(Appointment.builder()
-                .date(LocalDateTime.now())
-                .status(AppointmentStatus.BOOKED)
-                .description(faker.lorem().paragraph())
-                .doctor(doctor)
-                .patient(patient)
-                .examination(examination.get())
-                .build());
+    private void createHardcodedUser(UserRole role, String name, String surname, String email) {
+        User user;
+        if (role == UserRole.ROLE_DOCTOR) {
+            user = createDoctor(name, surname, email);
+        } else {
+            user = createUserWithRole(role, name, surname, email);
+        }
+        userRepository.save(user);
+    }
+
+    private void seedAdditionalUsers(UserRole role, int count, UserCreator creator) {
+        IntStream.range(0, count).forEach(i -> userRepository.save(creator.create(null, null, null)));
     }
 
     private User.UserBuilder seedCommonUserData() {
-        final String name = faker.name().firstName();
-        final String surname = faker.name().lastName();
+        String name = faker.name().firstName();
+        String surname = faker.name().lastName();
         return User.builder()
                 .name(name)
                 .surname(surname)
-                .email(name.toLowerCase(Locale.ROOT) + "." + surname.toLowerCase(Locale.ROOT) + "@doctor.com")
+                .email(name.toLowerCase(Locale.ROOT) + "." + surname.toLowerCase(Locale.ROOT) + "@example.com")
                 .password(bCryptPasswordEncoder.encode(genericPassword))
                 .isEnabled(true)
-                .pesel("12345678901")
-                .phoneNumber("123456789")
-                .address(Address.builder()
-                        .apartmentNumber(String.valueOf(faker.random().nextInt(1, 100)))
-                        .city(faker.address().city())
-                        .houseNumber(String.valueOf(faker.random().nextInt(1, 100)))
-                        .postalCode(faker.address().zipCode())
-                        .street(faker.address().streetName())
-                        .country("Poland")
-                        .build());
+                .pesel(faker.numerify("###########"))
+                .phoneNumber(faker.phoneNumber().phoneNumber())
+                .address(createAddress());
     }
 
-    private void seedAdmins() {
-        userRepository.save(
-                seedCommonUserData()
-                        .name("Admin")
-                        .surname("Admin")
-                        .email("admin@admin.com")
-                        .userRole(UserRole.ROLE_ADMIN)
-                        .build());
-        IntStream.range(0, Constants.NUMBER_OF_ADMIN_USERS).forEach(i -> userRepository.save(
-                seedCommonUserData()
-                        .userRole(UserRole.ROLE_ADMIN)
-                        .build()));
+    private Address createAddress() {
+        return Address.builder()
+                .apartmentNumber(String.valueOf(faker.random().nextInt(1, 100)))
+                .city(faker.address().city())
+                .houseNumber(String.valueOf(faker.random().nextInt(1, 100)))
+                .postalCode(faker.address().zipCode())
+                .street(faker.address().streetName())
+                .country(faker.address().country())
+                .build();
     }
 
-    private void seedPatients() {
-        userRepository.save(
-                seedCommonUserData()
-                        .name("Patient")
-                        .surname("Patient")
-                        .email("patient@patient.com")
-                        .userRole(UserRole.ROLE_PATIENT)
-                        .build());
-        IntStream.range(0, Constants.NUMBER_OF_PATIENT_USERS).forEach(i -> userRepository.save(
-                seedCommonUserData()
-                        .userRole(UserRole.ROLE_PATIENT)
-                        .build()));
+    private User createDoctor(String name, String surname, String email) {
+        User.UserBuilder userBuilder = seedCommonUserData();
+        if (name != null) {
+            userBuilder.name(name);
+        }
+        if (surname != null) {
+            userBuilder.surname(surname);
+        }
+        if (email != null) {
+            userBuilder.email(email);
+        }
+        return userBuilder
+                .userRole(UserRole.ROLE_DOCTOR)
+                .doctorDetails(getDoctorDetails())
+                .build();
     }
 
-    private void seedRegistrars() {
-        userRepository.save(
-                seedCommonUserData()
-                        .name("Registrar")
-                        .surname("Registrar")
-                        .email("registrar@registrar.com")
-                        .userRole(UserRole.ROLE_REGISTRAR)
-                        .build());
-        IntStream.range(0, Constants.NUMBER_OF_REGISTRAR_USERS).forEach(i -> userRepository.save(
-                seedCommonUserData()
-                        .userRole(UserRole.ROLE_REGISTRAR)
-                        .build()));
+    private User createAdmin(String name, String surname, String email) {
+        return createUserWithRole(UserRole.ROLE_ADMIN, name, surname, email);
     }
 
-    private void seedDoctors() {
-        userRepository.save(
-                seedCommonUserData()
-                        .name("Doctor")
-                        .surname("Doctor")
-                        .email("doctor@doctor.com")
-                        .userRole(UserRole.ROLE_DOCTOR)
-                        .doctorDetails(getDoctorDetails())
-                        .build());
-        IntStream.range(0, Constants.NUMBER_OF_DOCTOR_USERS).forEach(i -> userRepository.save(
-                seedCommonUserData()
-                        .userRole(UserRole.ROLE_DOCTOR)
-                        .doctorDetails(getDoctorDetails())
-                        .build()));
+    private User createPatient(String name, String surname, String email) {
+        return createUserWithRole(UserRole.ROLE_PATIENT, name, surname, email);
+    }
 
+    private User createRegistrar(String name, String surname, String email) {
+        return createUserWithRole(UserRole.ROLE_REGISTRAR, name, surname, email);
+    }
 
+    private User createUserWithRole(UserRole role, String name, String surname, String email) {
+        User.UserBuilder userBuilder = seedCommonUserData();
+        if (name != null) {
+            userBuilder.name(name);
+        }
+        if (surname != null) {
+            userBuilder.surname(surname);
+        }
+        if (email != null) {
+            userBuilder.email(email);
+        }
+        return userBuilder
+                .userRole(role)
+                .build();
     }
 
     private DoctorDetails getDoctorDetails() {
+        String specialization = faker.options().option(SPECIALIZATION_EXAMINATIONS.keySet().toArray(new String[0]));
         return DoctorDetails.builder()
-                .specialization(List.of(
-                        "Anesthesiologist",
-                        "Cardiologist",
-                        "Dermatologist",
-                        "Endocrinologist",
-                        "Gastroenterologist",
-                        "Hematologist",
-                        "Infectious Disease Specialist",
-                        "Internist",
-                        "Medical Geneticist",
-                        "Neurologist",
-                        "Obstetrician/Gynecologist"
-                ).get(faker.random().nextInt(0, 10)))
+                .specialization(specialization)
                 .education(faker.educator().university())
                 .description(faker.lorem().paragraph())
                 .schedule(Schedule.builder()
-                        .dailySchedules(this.initializeDailySchedules())
+                        .dailySchedules(initializeDailySchedules())
                         .build())
                 .build();
     }
 
     private Map<DayOfWeek, DailySchedule> initializeDailySchedules() {
-        Map<DayOfWeek, DailySchedule> dailySchedules = new EnumMap<>(DayOfWeek.class);
-        for (DayOfWeek day : DayOfWeek.values()) {
-            LocalTime startTime = LocalTime.of(faker.random().nextInt(8, 12), 0); // Only hour part, minute set to 0
-            LocalTime endTime = LocalTime.of(faker.random().nextInt(12, 18), 0); // Only hour part, minute set to 0
-            DailySchedule schedule = DailySchedule.builder()
-                    .startTime(startTime)
-                    .endTime(endTime)
-                    .build();
-            dailySchedules.put(day, schedule);
-        }
-        return dailySchedules;
+        return Arrays.stream(DayOfWeek.values())
+                .collect(Collectors.toMap(
+                        day -> day,
+                        day -> DailySchedule.builder()
+                                .startTime(LocalTime.of(faker.random().nextInt(8, 12), 0))
+                                .endTime(LocalTime.of(faker.random().nextInt(12, 18), 0))
+                                .build(),
+                        (v1, v2) -> v1,
+                        () -> new EnumMap<>(DayOfWeek.class)
+                ));
     }
 
     private void seedExaminations() {
         if (examinationRepository.count() > 0) return;
 
-        final List<Examination> examinations = new ArrayList<>();
-        IntStream.range(0, 10).forEach(i -> examinations.add(Examination.builder()
-                .name(healthcareFaker.disease().anyDisease())
-                .description(faker.lorem().paragraph())
-                .price(faker.number().numberBetween(50, 500))
-                .duration(
-                        switch (faker.random().nextInt(0, 3)) {
-                            case 0 -> 15;
-                            case 1 -> 30;
-                            case 2 -> 45;
-                            default -> 60;
-                        }
-                )
-                .status(ExaminationStatus.AVAILABLE)
-                .doctors(new ArrayList<>())
-                .build()));
+        List<Examination> examinations = new ArrayList<>();
+        SPECIALIZATION_EXAMINATIONS.forEach((specialization, examinationNames) -> {
+            examinationNames.forEach(name -> {
+                Examination examination = createExamination(name, specialization);
+                examinations.add(examination);
+            });
+        });
         examinationRepository.saveAll(examinations);
 
-        final List<User> doctors = userRepository.findAllByUserRole(UserRole.ROLE_DOCTOR);
+        assignExaminationsToDoctors(examinations);
+    }
 
-        doctors.forEach(doctor -> {
-            final List<Examination> tempExaminations = new ArrayList<>();
-            Collections.shuffle(examinations);
-            IntStream.range(0, faker.random().nextInt(1, 5)).forEach(i -> tempExaminations.add(examinations.get(faker.random().nextInt(0, examinations.size() - 1))));
+    private Examination createExamination(String name, String specialization) {
+        return Examination.builder()
+                .name(name)
+                .description(generateExaminationDescription(name, specialization))
+                .price(generateExaminationPrice())
+                .duration(List.of(15, 30, 45, 60).get(random.nextInt(4)))
+                .status(ExaminationStatus.AVAILABLE)
+                .doctors(new ArrayList<>())
+                .build();
+    }
 
-            doctor.getDoctorDetails().getExaminations().addAll(tempExaminations);
+
+    private double generateExaminationPrice() {
+        return EXAMINATION_PRICES.get(random.nextInt(EXAMINATION_PRICES.size()));
+    }
+
+    private String generateExaminationDescription(String name, String specialization) {
+        List<String> relevantSymptoms = EXAMINATION_SYMPTOMS.getOrDefault(name,
+                Collections.singletonList(faker.medical().symptoms()));
+        String symptoms = faker.options().option(relevantSymptoms.toArray(new String[0]));
+        return String.format("A %s examination in the field of %s. Used to diagnose or monitor patients with %s.",
+                name, specialization, symptoms);
+    }
+
+    private void assignExaminationsToDoctors(List<Examination> examinations) {
+        userRepository.findAllByUserRole(UserRole.ROLE_DOCTOR).forEach(doctor -> {
+            String specialization = doctor.getDoctorDetails().getSpecialization();
+            List<Examination> doctorExaminations = examinations.stream()
+                    .filter(e -> e.getDescription().contains(specialization))
+                    .toList();
+            doctor.getDoctorDetails().setExaminations(new ArrayList<>(doctorExaminations));
             userRepository.save(doctor);
 
-            tempExaminations.forEach(examination -> examination.getDoctors().add(doctor));
-            examinationRepository.saveAll(tempExaminations);
+            doctorExaminations.forEach(examination -> examination.getDoctors().add(doctor));
+            examinationRepository.saveAll(doctorExaminations);
         });
+    }
 
-        final Optional<User> doctor = userRepository.findByEmail("doctor@doctor.com");
 
-        doctor.ifPresent(value -> {
-            final List<Examination> tempExaminations = new ArrayList<>();
-            IntStream.range(0, faker.random().nextInt(1, 5)).forEach(i -> tempExaminations.add(
-                    Examination.builder()
-                            .name(healthcareFaker.medicalProcedure().icd10())
-                            .description(faker.lorem().paragraph())
-                            .price(faker.number().numberBetween(50, 500))
-                            .duration(30)
-                            .status(ExaminationStatus.AVAILABLE)
-                            .doctors(new ArrayList<>())
-                            .build()
-            ));
-            examinationRepository.saveAll(tempExaminations);
-
-            value.getDoctorDetails().getExaminations().addAll(tempExaminations);
-            userRepository.save(value);
-
-            tempExaminations.forEach(examination -> examination.getDoctors().add(value));
-            examinationRepository.saveAll(tempExaminations);
-        });
-
+    @FunctionalInterface
+    private interface UserCreator {
+        User create(String name, String surname, String email);
     }
 }
