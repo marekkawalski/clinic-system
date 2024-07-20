@@ -98,7 +98,7 @@ public class Seeder {
                         .email("admin@admin.com")
                         .userRole(UserRole.ROLE_ADMIN)
                         .build());
-        IntStream.range(0, 10).forEach(i -> userRepository.save(
+        IntStream.range(0, Constants.NUMBER_OF_ADMIN_USERS).forEach(i -> userRepository.save(
                 seedCommonUserData()
                         .userRole(UserRole.ROLE_ADMIN)
                         .build()));
@@ -112,7 +112,7 @@ public class Seeder {
                         .email("patient@patient.com")
                         .userRole(UserRole.ROLE_PATIENT)
                         .build());
-        IntStream.range(0, 100).forEach(i -> userRepository.save(
+        IntStream.range(0, Constants.NUMBER_OF_PATIENT_USERS).forEach(i -> userRepository.save(
                 seedCommonUserData()
                         .userRole(UserRole.ROLE_PATIENT)
                         .build()));
@@ -126,6 +126,10 @@ public class Seeder {
                         .email("registrar@registrar.com")
                         .userRole(UserRole.ROLE_REGISTRAR)
                         .build());
+        IntStream.range(0, Constants.NUMBER_OF_REGISTRAR_USERS).forEach(i -> userRepository.save(
+                seedCommonUserData()
+                        .userRole(UserRole.ROLE_REGISTRAR)
+                        .build()));
     }
 
     private void seedDoctors() {
@@ -137,7 +141,7 @@ public class Seeder {
                         .userRole(UserRole.ROLE_DOCTOR)
                         .doctorDetails(getDoctorDetails())
                         .build());
-        IntStream.range(0, 10).forEach(i -> userRepository.save(
+        IntStream.range(0, Constants.NUMBER_OF_DOCTOR_USERS).forEach(i -> userRepository.save(
                 seedCommonUserData()
                         .userRole(UserRole.ROLE_DOCTOR)
                         .doctorDetails(getDoctorDetails())

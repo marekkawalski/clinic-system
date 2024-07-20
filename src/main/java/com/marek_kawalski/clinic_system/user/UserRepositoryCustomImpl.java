@@ -40,6 +40,8 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
         query.addCriteria(Criteria.where("isEnabled").is(!showDisabled));
 
+        query.addCriteria(Criteria.where("email").ne("admin@admin.com"));
+
         if (search != null && !search.isEmpty()) {
             Criteria nameCriteria = Criteria.where("name").regex(search, "i");
             Criteria surnameCriteria = Criteria.where("surname").regex(search, "i");
