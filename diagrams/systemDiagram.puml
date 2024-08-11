@@ -1,0 +1,62 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+    BackgroundColor<<Frontend>> #E6F3FF
+    BackgroundColor<<Backend>> #E6FFE6
+    BackgroundColor<<Database>> #FFE6E6
+    RoundCorner 25
+}
+
+rectangle "Laptop (Środowisko lokalne)" {
+    rectangle "Docker Desktop" {
+        rectangle "Klaster Kubernetes" {
+            rectangle "Frontend" <<Frontend>> {
+                component "[Angular]" as angular
+                component "[React]" as react
+                component "[Vue.js]" as vue
+            }
+
+            rectangle "Backend" <<Backend>> {
+                component "[Spring Boot (Java)]" as backend
+            }
+
+            database "Database" <<Database>> {
+                component "[MongoDB]" as db
+            }
+        }
+    }
+}
+
+angular -[hidden]d- react
+react -[hidden]d- vue
+
+angular --> backend : HTTP/REST
+react --> backend : HTTP/REST
+vue --> backend : HTTP/REST
+
+backend --> db : Queries
+
+note right of angular
+  Aplikacje frontendowe
+  zaimplementowane
+  w różnych technologiach
+end note
+
+note right of backend
+  Wspólne API
+  implementowane
+  w Spring Boot (Java)
+end note
+
+note right of db
+  Baza danych
+  przechowująca
+  dane aplikacji
+end note
+
+note bottom of "Laptop (Środowisko lokalne)"
+  Cała infrastruktura uruchomiona lokalnie na laptopie,
+  włącznie z Docker Desktop i klastrem Kubernetes
+end note
+
+@enduml
