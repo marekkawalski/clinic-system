@@ -2,10 +2,18 @@
 
 ## About
 
-Clinic System is an application designed to manage a small medical clinic. It is built using Java and Spring Boot, and
-it leverages MongoDB for data storage. The project is configured using Kubernetes for deployment and Gradle for build
-automation. The system supports user roles such as admin, doctor, patient, and registrar, and it includes features for
+Clinic System is a backend for an application designed to manage a small medical clinic. It is built using Java and
+Spring Boot, and it leverages MongoDB for data storage. The project was configured to
+use docker compose to automatically set up the MongoDB database.
+The project can be run locally or deployed to a Kubernetes cluster.
+For deployment on Kubernetes cluster look at the k8s directory.
+The system supports user roles such as admin, doctor, patient, and registrar, and it includes features for
 managing appointments and user data.
+This project can be used as backend for one of the frontend projects:
+
+- [Clinic System Angular](https://github.com/marekkawalski/clinic-system-angular)
+- [Clinic System React](https://github.com/marekkawalski/clinic-system-react)
+- [Clinic System Vue](https://github.com/marekkawalski/clinic-system-vue)
 
 # Table of Contents
 
